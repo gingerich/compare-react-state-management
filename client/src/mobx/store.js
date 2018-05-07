@@ -1,4 +1,4 @@
-import { observable, action, useStrict } from "mobx"
+import { observable, action, configure } from "mobx"
 import request from "../shared/request"
 import { getVisibleTodos } from "../shared/selectors"
 import { TODOS_QUERY } from "../shared/queries"
@@ -8,19 +8,19 @@ import {
   CLEAR_TODO_MUTATION,
 } from "../shared/mutations"
 
-useStrict(true)
+configure({ enforceActions: true })
 
-const todoStore = observable({
+const todoStore = observable.object({
   todos: observable.map(),
   errors: null,
   loading: false,
   visibilityFilter: "SHOW_ALL",
 
   get visibleTodos() {
-    return getVisibleTodos(this.todos.values(), this.visibilityFilter)
+    return getVisibleTodos([...this.todos.values()], this.visibilityFilter)
   },
 
-  loadTodos: action.bound(function() {
+  loadTodos() {
     this.todos.clear()
     this.error = null
     this.loading = true
@@ -42,36 +42,42 @@ const todoStore = observable({
           this.loading = false
         })
       )
-  }),
+  },
 
-  addTodo: action.bound(function(title) {
+  addTodo(title) {
     request(ADD_TODO_MUTATION, { title }).then(
       action(response => {
         this.todos.set(response.addTodo.id, response.addTodo)
       })
     )
-  }),
+  },
 
-  toggleTodo: action.bound(function(id) {
+  toggleTodo(id) {
     request(TOGGLE_TODO_MUTATION, { id }).then(
       action(response => {
         const todo = this.todos.get(id)
         this.todos.set(id, { ...todo, ...response.toggleTodo })
       })
     )
-  }),
+  },
 
-  clearTodo: action.bound(function(id) {
+  clearTodo (id) {
     request(CLEAR_TODO_MUTATION, { id }).then(
       action(() => {
         this.todos.delete(id)
       })
     )
-  }),
+  },
 
-  setVisibilityFilter: action.bound(function(filter) {
-    this.visibilityFilter = filter
-  }),
+  setVisibilityFilter(filter) {
+    action(() => this.visibilityFilter = filter)()
+  },
+},
+{
+  loadTodos: action.bound,
+  addTodo: action.bound,
+  toggleTodo: action.bound,
+  clearTodo: action.bound
 })
 
 export default todoStore
