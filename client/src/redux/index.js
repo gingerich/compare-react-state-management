@@ -1,11 +1,10 @@
 import React from "react"
-import { createStore, applyMiddleware } from "redux"
+import { createStore } from "redux"
 import { Provider } from "react-redux"
 import { rootReducer } from "./reducers"
-import thunk from "redux-thunk"
 import TodoApp from "./TodoApp"
 
-const todoStore = createStore(rootReducer, applyMiddleware(thunk))
+const todoStore = createStore(rootReducer)
 
 const ReduxTodoApp = props => {
   return (

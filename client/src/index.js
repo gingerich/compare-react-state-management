@@ -8,4 +8,4 @@ import ReduxTodoApp from "./redux"
 import ContextTodoApp from "./context"
 
 // NOTE: TodoApps are interchangeable
-ReactDOM.render(<MSTTodoApp />, document.getElementById("root"))
+ReactDOM.render(<ReduxTodoApp />, document.getElementById("root"))
